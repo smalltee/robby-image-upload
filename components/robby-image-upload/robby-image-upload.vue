@@ -4,7 +4,9 @@
 			<view class="imageItem" v-bind:key="index" v-for="(path,index) in imageList">
 				<image :src="path" :class="{'dragging':isDragging(index)}" draggable="true" @tap="previewImage" :data-index="index" @touchstart="start" @touchmove.stop="move" @touchend="stop"></image>
 				<view v-if="isShowDel" class="imageDel" @tap="deleteImage" :data-index="index">x</view>
+				
 			</view>
+			
 			<view v-if="isShowAdd" class="imageUpload" @tap="selectImage">
 				+
 			</view>
@@ -18,7 +20,7 @@
 	
 	export default {
 		name:'robby-image-upload',
-		props: ['value','enableDel','enableAdd','enableDrag'],
+		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData'],
 		data() {
 			return {
 				imageList:this.value || [],
@@ -73,9 +75,38 @@
 				uni.chooseImage({
 					success: function(e){
 						var imagePathArr = e.tempFilePaths
-						if(imagePathArr && imagePathArr.length >0){
-							_self.imageList.splice(_self.imageList.length, 0, ...imagePathArr)
+						
+						for(let i=0; i<imagePathArr.length;i++){
+							_self.imageList.push(imagePathArr[i])
 						}
+						
+						//检查服务器地址是否设置，设置即表示图片要上传到服务器
+						if(_self.serverUrl !==null && _self.serverUrl.length>1){
+							
+							var remoteIndexStart = _self.imageList.length - imagePathArr.length
+							for(let i=0; i<imagePathArr.length;i++){
+								let remoteUrlIndex = remoteIndexStart + i
+								uni.uploadFile({
+									url:_self.serverUrl,
+									fileType: 'image',
+									formData:_self.formData,
+									filePath: imagePathArr[i], 
+									name: 'upload-images',
+									success: function(res){
+										if(res.statusCode === 200){
+											_self.imageList[remoteUrlIndex] = res.data 
+											console.log('success to upload image: ' + res.data)
+										}else{
+											console.log('fail to upload image:'+res.data)
+										}
+									},
+									fail: function(res){
+										console.log('fail to upload image:'+res)
+									}
+								})
+							}
+						}
+						
 						_self.$emit('add', {
 							currentImages: imagePathArr,
 							allImages: _self.imageList
@@ -87,8 +118,8 @@
 			deleteImage: function(e){
 				var imageIndex = e.currentTarget.dataset.index
 				var deletedImagePath = this.imageList[imageIndex]
-				
 				this.imageList.splice(imageIndex, 1) 
+				
 				this.$emit('delete',{
 					currentImage: deletedImagePath,
 					allImages: this.imageList
@@ -215,6 +246,16 @@
 		width: 160upx;
 		height: 160upx;
 		margin: 10upx;
+	}
+	
+	.imageProgress{
+		position: relative;
+		left: 10upx;
+		bottom: 100upx;
+		border: 1px solid black;
+		font-size: 40upx;
+		color: white;
+		width: 60upx;
 	}
 	
 	.imageDel{

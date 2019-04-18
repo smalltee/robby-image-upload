@@ -1,9 +1,6 @@
 <template>
 	<view class="">
-		<robby-image-upload v-model="imageData" @delete="deleteImage" @add="addImage"></robby-image-upload>
-		<view v-for="(item,index) in imageData" :key="index" class="">
-			{{index}}. {{item.substr(-14)}}
-		</view>
+		<robby-image-upload v-model="imageData" :server-url="serverUrl" :form-data="formData" @delete="deleteImage" @add="addImage"></robby-image-upload>
 	</view>
 </template>
 
@@ -15,7 +12,11 @@
 				enableDel : false,
 				enableAdd : false,
 				enableDrag : false,
-				imageData : ['http://e0.ifengimg.com/11/2019/0416/C84611AFCFFA54F880452B866733AF65E7E65899_size80_w1280_h960.jpeg', 'http://e0.ifengimg.com/09/2019/0416/3F9235CCC4A216818ED26B23CA2F9DD3D2FE7566_size718_w750_h400.jpeg']
+				imageData : [],
+				serverUrl: 'http://localhost:3000/work/uploadWorkPicture',
+				formData: {
+					userId: 2
+				}
 			} 
 		},
 		components: {robbyImageUpload},
