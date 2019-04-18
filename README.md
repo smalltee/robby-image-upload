@@ -1,80 +1,71 @@
 # 项目说明
 本项目是基于uni-app的一个通用组件。可支持小程序，也支持APP。
-组件名称为“标签组件”，通过属性设置可支持只读标签，也支持可编辑标签
+组件名称为“图片选择组件”，可添加，可删除，可预览，可拖动调整顺序
 
 # 组件功能说明：
-1. 输入文字，点添加，可新建一个标签
-2. 可同时输入多个标签，以逗号相隔
-3. 标签新建后自动添加到后面
-4. 标签上自带删除图标，点击可删除
+1. 可选择多张图片
+2. 选择图片后自动添加到后面
+4. 图片上自带删除图标，点击可删除
 5. 删除图标可配置显示/隐藏
-6. 标签背景色可配置内置的5种颜色
-7. 标签可点击触发事件
-8. 标签删除时可触发删除事件
-9. 添加区域可配置显示/隐藏
-10. 可获取当前标签的数据列表
+7. 图片可点击预览
+8. 图片可拖动重新排序
+9. 图片删除时可触发删除事件
+10. 添加图片可配置显示/隐藏
+11. 可获取当前的图片地址数组
 
 # 使用说明
 拷贝该组件到components目录下之后
 
 在 `script`中引用组件
 ```
-import robbyTags from '@/components/robby-tags/robby-tags.vue'
+import robbyImageUpload from '@/components/robby-image-upload/robby-image-upload.vue'
 export default {
-    components: {robbyTags}
+    components: {robbyImageUpload}
 }
 ```
 
 在 `template` 中使用组件：
 ```
-<robby-tags></robby-tags>
-<robby-tags @add="addTag" @delete="delTag" :tag-data="tagData" :enable-del="enableDel" :enable-add="enableAdd"></robby-tags>
+<robby-image-upload :value="imageData"></robby-image-upload>
+<robby-image-upload v-model="imageData" @delete="deleteImage" @add="addImage" :enable-drag="enableDrag" :enable-del="enableDel" :enable-add="enableAdd"></robby-image-upload>
 ```
+
+# 双向绑定说明
+v-model: 类型为字符串数组。 即图片地址数组，可用于初始化，当添加/删除操作时，绑定的数据都会同步更新
 
 # 属性说明
 属性名|类型|默认值|说明
 :-:|:-:|:-:|-
-enable-del|Boolean|false|删除图标是否可见，即是否可删除
-enable-add|Boolean|false|添加标签操作是否可见，即是否可进行添加标签
-tag-data|Array<String>|[]|初始化的标签数据
-bg-color-type|String|''|标签的背景颜色，默认为灰色，另外可取值有四种，与uni自带的颜色保持一致，分别为：primary, success, warn, error
+enable-del|Boolean|true|删除图标是否可见，即是否可删除
+enable-add|Boolean|true|添加图片操作是否可见，即是否可添加图片
+enable-drag|Boolean|true|图片是否可拖动，重新排序
+value|Array<String>|[]|初始化的图片数据，可用于单向数据初始化，需要双向绑定可直接用v-model
 
 # 事件说明
 事件名称|说明|返回参数
 :-:|-|-
-add|点击”添加“按钮后触发的事件,返回参数为当前操作添加的标签数组和当前所有的标签数组|{currentTag:Array<String>,allTags:<String>}
-delete|点击“x”删除图标后触发的事件,返回参数为当前删除的标签字符串|{currentTag:String,allTags:<String>}
-click|点击标签文字触发的事件，返回参数为当前点击的标签字符串|String
+add|点击”添加“按钮后触发的事件,返回参数为当前操作添加的图片地址数组和当前所有的图片地址数组|{currentImages:Array<String>,allImages:<String>}
+delete|点击“x”删除图标后触发的事件,返回参数为当前删除的图片地址和当前所有的图片地址数组|{currentImage:String,allImages:<String>}
 
 # demo示例
 ```
-<template>
-	<view class="uni-common-mt">
-		<view class="uni-label">
-			为作品贴标签
-		</view>
-		<robby-tags @add="addTag" @delete="delTag" @click="clickTag" :tag-data="tagList" :enable-del="enableDel" :enable-add="enableAdd"></robby-tags>
-	</view>
-</template>
 <script>
-	import robbyTags from '@/components/robby-tags/robby-tags.vue'
+	import robbyImageUpload from '@/components/robby-image-upload/robby-image-upload.vue'
 	export default {
 		data() {
 			return {
-				enableDel: true,
-				enableAdd: true,
-				colorType: 'primary',
-				tagList: ['建筑','动漫','艺术']
-			}
+				enableDel : false,
+				enableAdd : false,
+				enableDrag : false,
+				imageData : ['http://e0.ifengimg.com/11/2019/0416/C84611AFCFFA54F880452B866733AF65E7E65899_size80_w1280_h960.jpeg', 'http://e0.ifengimg.com/09/2019/0416/3F9235CCC4A216818ED26B23CA2F9DD3D2FE7566_size718_w750_h400.jpeg']
+			} 
 		},
+		components: {robbyImageUpload},
 		methods:{
-			clickTag: function(e){
+			deleteImage: function(e){
 				console.log(e)
 			},
-			delTag: function(e){
-				console.log(e)
-			},
-			addTag: function(e){
+			addImage: function(e){
 				console.log(e)
 			}
 		}

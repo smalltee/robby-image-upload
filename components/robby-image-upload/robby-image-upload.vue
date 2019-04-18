@@ -18,10 +18,10 @@
 	
 	export default {
 		name:'robby-image-upload',
-		props: ['imageData','enableDel','enableAdd','enableDrag'],
+		props: ['value','enableDel','enableAdd','enableDrag'],
 		data() {
 			return {
-				imageList:this.imageData || [],
+				imageList:this.value || [],
 				imageBasePos:{
 					x0: -1,
 					y0: -1,
@@ -80,6 +80,7 @@
 							currentImages: imagePathArr,
 							allImages: _self.imageList
 						})
+						_self.$emit('input', _self.imageList)
 					}
 				})
 			},
@@ -92,6 +93,7 @@
 					currentImage: deletedImagePath,
 					allImages: this.imageList
 				})
+				this.$emit('input', this.imageList)
 			},
 			previewImage: function(e){
 				var imageIndex = e.currentTarget.dataset.index
