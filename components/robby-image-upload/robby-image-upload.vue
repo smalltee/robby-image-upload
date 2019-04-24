@@ -84,34 +84,48 @@
 						if(_self.serverUrl !==null && _self.serverUrl.length>1){
 							
 							var remoteIndexStart = _self.imageList.length - imagePathArr.length
+							var promiseWorkList = []
+							
 							for(let i=0; i<imagePathArr.length;i++){
-								let remoteUrlIndex = remoteIndexStart + i
-								uni.uploadFile({
-									url:_self.serverUrl,
-									fileType: 'image',
-									formData:_self.formData,
-									filePath: imagePathArr[i], 
-									name: 'upload-images',
-									success: function(res){
-										if(res.statusCode === 200){
-											_self.imageList[remoteUrlIndex] = res.data 
-											console.log('success to upload image: ' + res.data)
-										}else{
-											console.log('fail to upload image:'+res.data)
+								promiseWorkList.push(new Promise((resolve, reject)=>{
+									let remoteUrlIndex = remoteIndexStart + i
+									uni.uploadFile({
+										url:_self.serverUrl,
+										fileType: 'image',
+										formData:_self.formData,
+										filePath: imagePathArr[i], 
+										name: 'upload-images',
+										success: function(res){
+											if(res.statusCode === 200){
+												_self.imageList[remoteUrlIndex] = res.data 
+												console.log('success to upload image: ' + res.data)
+												resolve('success to upload image:' + remoteUrlIndex)
+											}else{
+												console.log('fail to upload image:'+res.data)
+												reject('failt to upload image:' + remoteUrlIndex)
+											}
+										},
+										fail: function(res){
+											console.log('fail to upload image:'+res)
+											reject('failt to upload image:' + remoteUrlIndex)
 										}
-									},
-									fail: function(res){
-										console.log('fail to upload image:'+res)
-									}
-								})
+									})
+								}))
 							}
+							Promise.all(promiseWorkList).then((result)=>{
+								_self.$emit('add', {
+									currentImages: imagePathArr,
+									allImages: _self.imageList
+								})
+								_self.$emit('input', _self.imageList)
+							})
+						}else{
+							_self.$emit('add', {
+								currentImages: imagePathArr,
+								allImages: _self.imageList
+							})
+							_self.$emit('input', _self.imageList)
 						}
-						
-						_self.$emit('add', {
-							currentImages: imagePathArr,
-							allImages: _self.imageList
-						})
-						_self.$emit('input', _self.imageList)
 					}
 				})
 			},
