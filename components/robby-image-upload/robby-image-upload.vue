@@ -81,7 +81,7 @@
 						}
 						
 						//检查服务器地址是否设置，设置即表示图片要上传到服务器
-						if(_self.serverUrl !==null && _self.serverUrl.length>1){
+						if(_self.serverUrl){
 							
 							var remoteIndexStart = _self.imageList.length - imagePathArr.length
 							var promiseWorkList = []
