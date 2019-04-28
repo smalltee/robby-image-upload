@@ -1,7 +1,7 @@
 <template>
 	<view class="imageUploadContainer">
 		<view class="imageUploadList">
-			<view class="imageItem" v-bind:key="index" v-for="(path,index) in imageList">
+			<view class="imageItem" v-bind:key="index" v-for="(path,index) in value">
 				<image :src="path" :class="{'dragging':isDragging(index)}" draggable="true" @tap="previewImage" :data-index="index" @touchstart="start" @touchmove.stop="move" @touchend="stop"></image>
 				<view v-if="isShowDel" class="imageDel" @tap="deleteImage" :data-index="index">x</view>
 				
@@ -23,7 +23,6 @@
 		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData'],
 		data() {
 			return {
-				imageList:this.value || [],
 				imageBasePos:{
 					x0: -1,
 					y0: -1,
@@ -77,13 +76,13 @@
 						var imagePathArr = e.tempFilePaths
 						
 						for(let i=0; i<imagePathArr.length;i++){
-							_self.imageList.push(imagePathArr[i])
+							_self.value.push(imagePathArr[i])
 						}
 						
 						//检查服务器地址是否设置，设置即表示图片要上传到服务器
 						if(_self.serverUrl){
 							
-							var remoteIndexStart = _self.imageList.length - imagePathArr.length
+							var remoteIndexStart = _self.value.length - imagePathArr.length
 							var promiseWorkList = []
 							
 							for(let i=0; i<imagePathArr.length;i++){
@@ -97,7 +96,7 @@
 										name: 'upload-images',
 										success: function(res){
 											if(res.statusCode === 200){
-												_self.imageList[remoteUrlIndex] = res.data 
+												_self.value[remoteUrlIndex] = res.data 
 												console.log('success to upload image: ' + res.data)
 												resolve('success to upload image:' + remoteUrlIndex)
 											}else{
@@ -115,38 +114,38 @@
 							Promise.all(promiseWorkList).then((result)=>{
 								_self.$emit('add', {
 									currentImages: imagePathArr,
-									allImages: _self.imageList
+									allImages: _self.value
 								})
-								_self.$emit('input', _self.imageList)
+								_self.$emit('input', _self.value)
 							})
 						}else{
 							_self.$emit('add', {
 								currentImages: imagePathArr,
-								allImages: _self.imageList
+								allImages: _self.value
 							})
-							_self.$emit('input', _self.imageList)
+							_self.$emit('input', _self.value)
 						}
 					}
 				})
 			},
 			deleteImage: function(e){
 				var imageIndex = e.currentTarget.dataset.index
-				var deletedImagePath = this.imageList[imageIndex]
-				this.imageList.splice(imageIndex, 1) 
+				var deletedImagePath = this.value[imageIndex]
+				this.value.splice(imageIndex, 1) 
 				
 				this.$emit('delete',{
 					currentImage: deletedImagePath,
-					allImages: this.imageList
+					allImages: this.value
 				})
-				this.$emit('input', this.imageList)
+				this.$emit('input', this.value)
 			},
 			previewImage: function(e){
 				var imageIndex = e.currentTarget.dataset.index
 				uni.previewImage({
-					current: this.imageList[imageIndex],
+					current: this.value[imageIndex],
 					indicator: "number",
 					loop: "true",
-					urls:this.imageList
+					urls:this.value
 				})
 			},
 			initImageBasePos: function(){
@@ -179,7 +178,7 @@
 					return
 				}
 				this.dragIndex = e.currentTarget.dataset.index
-				this.moveImagePath = this.imageList[this.dragIndex]
+				this.moveImagePath = this.value[this.dragIndex]
 				this.showMoveImage = true
 				
 				//计算纵向图片基准位置
@@ -221,13 +220,13 @@
 						this.targetImageIndex = 0
 					}
 				
-					if(this.targetImageIndex>=this.imageList.length){
-						this.targetImageIndex = this.imageList.length-1
+					if(this.targetImageIndex>=this.value.length){
+						this.targetImageIndex = this.value.length-1
 					}
 					//交换图片
 					if(this.dragIndex !== this.targetImageIndex){
-						this.imageList[this.dragIndex] = this.imageList[this.targetImageIndex]
-						this.imageList[this.targetImageIndex] = this.moveImagePath
+						this.value[this.dragIndex] = this.value[this.targetImageIndex]
+						this.value[this.targetImageIndex] = this.moveImagePath
 					}
 				}
 				
@@ -260,16 +259,6 @@
 		width: 160upx;
 		height: 160upx;
 		margin: 10upx;
-	}
-	
-	.imageProgress{
-		position: relative;
-		left: 10upx;
-		bottom: 100upx;
-		border: 1px solid black;
-		font-size: 40upx;
-		color: white;
-		width: 60upx;
 	}
 	
 	.imageDel{
