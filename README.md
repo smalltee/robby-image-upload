@@ -12,6 +12,7 @@
 10. 添加图片可配置显示/隐藏
 11. 可获取当前的图片地址数组
 12. 可上传图片到服务器
+13. 可设置上传的图片数量
 
 # 历史版本说明
 版本号|更新日期|更新说明
@@ -20,6 +21,8 @@ v1.0|2019-4-18|功能参考上面“组件功能说明”
 v1.1|2019-4-18|增加服务器上传功能：1.增加server-url属性， 2.增加form-data属性
 v1.2|2019-4-24|修改bug: 在上传到服务器时，Add事件是在上传成功之前触发的。
 v1.3|2019-4-24|优化服务端地址是否填写
+v1.4|2019-4-29|优化数据双向绑定的参数：某种情况下初始化的图片数据不能展示
+v1.5|2019-5-08|增加上传图片数量的参数：limit，默认不限制
 
 # 使用说明
 拷贝该组件到components目录下之后
@@ -37,8 +40,8 @@ export default {
 初始化显示图片
 <robby-image-upload :value="imageData"></robby-image-upload>
 
-绑定图片数据，监听添加、删除事件，设置是否拖拉，是否可删除，是否可选择添加
-<robby-image-upload v-model="imageData" @delete="deleteImage" @add="addImage" :enable-drag="enableDrag" :enable-del="enableDel" :enable-add="enableAdd"></robby-image-upload>
+绑定图片数据，监听添加、删除事件，设置是否拖拉，是否可删除，是否可选择添加，图片数量限制
+<robby-image-upload v-model="imageData" @delete="deleteImage" @add="addImage" :enable-drag="enableDrag" :enable-del="enableDel" :enable-add="enableAdd" :limit="limitNumber"></robby-image-upload>
 
 支持图片上传服务器：选择图片后，组件会自动上传到指定地址，并更新组件中保存的图片地址为服务器地址
 <robby-image-upload :server-url="serverUrl" :form-data="formData"></robby-image-upload>
@@ -56,6 +59,7 @@ enable-drag|Boolean|true|图片是否可拖动，重新排序
 value|Array&lt;String&gt;|[]|初始化的图片数据，可用于单向数据初始化，需要双向绑定可直接用v-model
 server-url|String|null|图片上传的服务器地址，为空或不填写表示不上传图片。填写后本组件在选择图片后会自动上传服务器，add/delete事件中的allImages参数会更新为由服务器端传回的图片地址。
 form-data|Object|null|上传图片到服务器时，如果需要自定义数据，可以通过此属性进行传递。
+limit|Number|无|限制总共可上传的图片数量，默认无限制
 
 # 服务器代码编写说明（可参考下面服务器demo）
 1. 在服务器获取的文件名固定为“upload-images”
@@ -86,6 +90,7 @@ delete|点击“x”删除图标后触发的事件,返回参数为当前删除�
 				enableDel : false,
 				enableAdd : false,
 				enableDrag : false,
+				limitNumber: 8,
 				imageData : [],
 				serverUrl: 'http://localhost:3000/work/uploadWorkPicture',
 				formData: {

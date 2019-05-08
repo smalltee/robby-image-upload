@@ -1,6 +1,6 @@
 <template>
 	<view class="">
-		<robby-image-upload v-model="imageData" :server-url="serverUrl" :form-data="formData" @delete="deleteImage" @add="addImage"></robby-image-upload>
+		<robby-image-upload v-model="imageData" :limit="limitNo" :server-url="serverUrl" :form-data="formData" @delete="deleteImage" @add="addImage"></robby-image-upload>
 	</view>
 </template>
 
@@ -14,6 +14,7 @@
 				enableDrag : false,
 				imageData : [],
 				serverUrl: '',
+				limitNo: 2,
 				formData: {
 					userId: 2
 				}

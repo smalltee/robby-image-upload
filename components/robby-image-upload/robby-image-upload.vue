@@ -20,7 +20,7 @@
 	
 	export default {
 		name:'robby-image-upload',
-		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData'],
+		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData','limit'],
 		data() {
 			return {
 				imageBasePos:{
@@ -56,9 +56,13 @@
 			isShowAdd: function(){
 				if(this.enableAdd === false){
 					return false
-				}else{
-					return true
 				}
+				
+				if(this.limit && this.value.length >= this.limit){
+					return false
+				}
+				
+				return true
 			},
 			isDragable: function(){
 				if(this.enableDrag === false){
@@ -72,6 +76,7 @@
 			selectImage: function(){
 				_self = this
 				uni.chooseImage({
+					count: _self.limit ? (_self.limit - _self.value.length) : 999,
 					success: function(e){
 						var imagePathArr = e.tempFilePaths
 						
