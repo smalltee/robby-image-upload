@@ -240,6 +240,8 @@
 				this.deltaLeft = 0
 				this.deltaTop = 0
 				this.showMoveImage = false
+				
+				this.$emit('input', this.value)
 			}
 		}
 	}
