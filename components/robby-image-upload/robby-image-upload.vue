@@ -75,10 +75,30 @@
 		methods:{
 			selectImage: function(){
 				_self = this
+				if(!_self.value){
+					_self.value = []
+				} 
+				
 				uni.chooseImage({
 					count: _self.limit ? (_self.limit - _self.value.length) : 999,
 					success: function(e){
 						var imagePathArr = e.tempFilePaths
+						
+						//如果设置了limit限制，在web上count参数无效，这里做判断控制选择的数量是否合要求
+						//在非微信小程序里，虽然可以选多张，但选择的结果会被截掉
+						//在app里，会自动做选择数量的限制
+						if(_self.limit){
+							var availableImageNumber = _self.limit - _self.value.length
+							if(availableImageNumber < imagePathArr.length){
+								uni.showToast({
+									title: '图片总数限制为'+_self.limit+'张，当前还可以选'+availableImageNumber+'张',
+									icon:'none',
+									mask: false,
+									duration: 2000
+								});
+								return
+							}
+						}
 						
 						for(let i=0; i<imagePathArr.length;i++){
 							_self.value.push(imagePathArr[i])
