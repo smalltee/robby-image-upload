@@ -20,7 +20,7 @@
 	
 	export default {
 		name:'robby-image-upload',
-		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData','limit'],
+		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData','limit','fileKeyName'],
 		data() {
 			return {
 				imageBasePos:{
@@ -109,6 +109,8 @@
 							
 							var remoteIndexStart = _self.value.length - imagePathArr.length
 							var promiseWorkList = []
+							var keyname = (_self.fileKeyName ? _self.fileKeyName : 'upload-images')
+							console.log(keyname)
 							
 							for(let i=0; i<imagePathArr.length;i++){
 								promiseWorkList.push(new Promise((resolve, reject)=>{
@@ -118,7 +120,7 @@
 										fileType: 'image',
 										formData:_self.formData,
 										filePath: imagePathArr[i], 
-										name: 'upload-images',
+										name: keyname,
 										success: function(res){
 											if(res.statusCode === 200){
 												_self.value[remoteUrlIndex] = res.data 

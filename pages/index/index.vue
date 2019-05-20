@@ -13,7 +13,7 @@
 				enableAdd : false,
 				enableDrag : false,
 				imageData : [],
-				serverUrl: '',
+				serverUrl: 'http://localhost:3000/work/uploadWorkPicture',
 				limitNo: 2,
 				formData: {
 					userId: 2
