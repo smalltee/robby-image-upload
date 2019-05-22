@@ -20,7 +20,7 @@
 	
 	export default {
 		name:'robby-image-upload',
-		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData','limit','fileKeyName'],
+		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData','limit','fileKeyName','showUploadProgress'],
 		data() {
 			return {
 				imageBasePos:{
@@ -110,7 +110,7 @@
 							var remoteIndexStart = _self.value.length - imagePathArr.length
 							var promiseWorkList = []
 							var keyname = (_self.fileKeyName ? _self.fileKeyName : 'upload-images')
-							console.log(keyname)
+							var completeImages = 0
 							
 							for(let i=0; i<imagePathArr.length;i++){
 								promiseWorkList.push(new Promise((resolve, reject)=>{
@@ -124,6 +124,16 @@
 										success: function(res){
 											if(res.statusCode === 200){
 												_self.value[remoteUrlIndex] = res.data 
+												completeImages ++
+												
+												if(_self.showUploadProgress){
+													uni.showToast({
+														title: '上传进度：' + completeImages + '/' + imagePathArr.length,
+														icon: 'none',
+														mask: false,
+														duration: 1000
+													});
+												}
 												console.log('success to upload image: ' + res.data)
 												resolve('success to upload image:' + remoteUrlIndex)
 											}else{
