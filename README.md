@@ -142,3 +142,4 @@ router.post('/uploadWorkPicture', multipartyMiddleware, function(req, res){
 |v1.7|2019-05-15|1._self.value空判断，并初始化一个数组<br>2.web上无法限制图片数量，内部做了数量检测，并提示可用数量|
 |v1.8|2019-05-20|增加上传到服务器key值参数：fileKeyName，用于在服务端通过自定义key值获取该文件数据，默认为'upload-images'.|
 |v1.9|2019-05-22|增加显示上传进度参数：showUploadProgress。以提示信息的方式来提示进度|
+|v1.10|2019-05-23|1.修改bug:支付宝小程序不能拖动。2.调整显示样式|

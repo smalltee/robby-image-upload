@@ -2,14 +2,10 @@
 	<view class="imageUploadContainer">
 		<view class="imageUploadList">
 			<view class="imageItem" v-bind:key="index" v-for="(path,index) in value">
-				<image :src="path" :class="{'dragging':isDragging(index)}" draggable="true" @tap="previewImage" :data-index="index" @touchstart="start" @touchmove.stop="move" @touchend="stop"></image>
+				<image :src="path" :class="{'dragging':isDragging(index)}" draggable="true" @tap="previewImage" :data-index="index" @touchstart="start" @touchmove="move" @touchend="stop"></image>
 				<view v-if="isShowDel" class="imageDel" @tap="deleteImage" :data-index="index">x</view>
-				
 			</view>
-			
-			<view v-if="isShowAdd" class="imageUpload" @tap="selectImage">
-				+
-			</view>
+			<view v-if="isShowAdd" class="imageUpload" @tap="selectImage">+</view>
 		</view>
 		<image v-if="showMoveImage" class="moveImage" :style="{left:posMoveImageLeft, top:posMoveImageTop}" :src="moveImagePath"></image>
 	</view>
@@ -303,27 +299,30 @@
 	.imageDel{
 		position: relative;
 		left: 120upx;
-		bottom: 54upx;
-		background-color: rgba(255,255,255,0.5);
+		bottom: 165upx;
+		background-color: rgba(0,0,0,0.5);
 		width: 36upx;
 		text-align: center;
-		padding:1upx 1upx 5upx 1upx;
-		line-height: 31upx;
-		border-radius: 60upx;
-		font-size: 40upx;
+		line-height: 35upx;
+		border-radius: 17upx;
+		color: white;
+		font-size: 30upx;
+		padding-bottom: 2upx;
 	}
 	
 	.imageItem image, .moveImage{
 		width: 160upx;
 		height: 160upx;
-		border-radius: 20upx;
+		border-radius: 8upx;
 	}
 	
 	.imageUpload{
 		line-height: 130upx;
 		text-align: center;
 		font-size: 150upx;
-		border-radius: 20upx;
+		color: #D9D9D9;
+		border: 1px solid #D9D9D9;
+		border-radius: 8upx;
 	}
 	
 	.moveImage{
