@@ -48,15 +48,19 @@ enable-add|Boolean|true|添加图片操作是否可见，即是否可添加图�
 enable-drag|Boolean|true|图片是否可拖动，重新排序
 value|Array&lt;String&gt;|[]|初始化的图片数据，可用于单向数据初始化，需要双向绑定可直接用v-model
 server-url|String|null|图片上传的服务器地址，为空或不填写表示不上传图片。填写后本组件在选择图片后会自动上传服务器，add/delete事件中的allImages参数会更新为由服务器端传回的图片地址。
+server-url-delete-image|String|null|删除图片的服务器地址，为空或不填写表示不需要调用后台完成删除操作。填写后本组件在点击删除按钮后会调用该接口，具体的删除操作需要自行实现。下方有一个Node作为后台删除图片的例子
 form-data|Object|null|上传图片到服务器时，如果需要自定义数据，可以通过此属性进行传递。
 limit|Number|无|限制总共可上传的图片数量，默认无限制
 fileKeyName|String|'upload-images'|用于在服务端通过自定义key值获取该文件数据
 showUploadProgress|Boolean|false|表示是否显示选择图片的上传进度（以提示信息的方式）
 
-# 服务器代码编写说明（可参考下面服务器demo）
+# 后台上传图片代码编写说明（可参考下面:后台上传图片demo）
 1. 在服务器获取的文件key值默认为“upload-images”，可通过参数fileKeyName来自定义名字
 2. 因为微信只支持单张上传，所以此组件的实现为连续单张上传，而不是一次上传多张图片
 3. 上传成功后，需要图片的新地址传回来，用于前端更新图片地址
+
+# 后台删除图片代码编写说明（可参考下面:后台删除图片demo）
+1. 调用该删除接口时，传输参数为：imagePath。该参数表示删除的图片完整地址（如：http://localhost:1234/2/2834o21.jpg)
 
 # 事件说明
 事件名称|说明|返回参数
@@ -68,7 +72,7 @@ delete|点击“x”删除图标后触发的事件,返回参数为当前删除�
 ```
 <template>
 	<view class="">
-		<robby-image-upload v-model="imageData" @delete="deleteImage" @add="addImage"></robby-image-upload>
+		<robby-image-upload v-model="imageData" @delete="deleteImage" @add="addImage" :server-url-delete-image="serverUrlDeleteImage" :server-url="serverUrl"></robby-image-upload>
 		<view v-for="(item,index) in imageData" :key="index" class="">
 			{{index}}. {{item.substr(-14)}}
 		</view>
@@ -84,7 +88,8 @@ delete|点击“x”删除图标后触发的事件,返回参数为当前删除�
 				enableDrag : false,
 				limitNumber: 8,
 				imageData : [],
-				serverUrl: 'http://localhost:3000/work/uploadWorkPicture',
+				serverUrl: 'http://localhost:1234/work/uploadWorkPicture',
+				serverUrlDeleteImage: 'http://localhost:1234/work/deleteWorkPicture',
 				formData: {
 					userId: 2
 				}
@@ -103,9 +108,12 @@ delete|点击“x”删除图标后触发的事件,返回参数为当前删除�
 </script>
 ```
 
-# 服务器示例代码(Node JS)
+# 后台接收上传图片/删除图片示例代码(Node JS)
 ```
 var express = require('express');
+var router = express.Router();
+var path = require('path')
+var fs = require('fs')
 var multiparty = require('connect-multiparty')
 var multipartyMiddleware = new multiparty()
 
@@ -127,6 +135,27 @@ router.post('/uploadWorkPicture', multipartyMiddleware, function(req, res){
 		res.send('http://localhost:3000/'+userId+'/'+uploadedImage.name)
 	})
 })
+
+router.get('/deleteWorkPicture', function(req, res){
+	var serverPrefix = 'http://localhost:1234/'
+	var str = req.query.imagePath
+	var filePath = path.join(__dirname + '/../work_material/' + str.replace(serverPrefix, ''))
+	fs.unlink(filePath, function(err){
+		if(err){
+			res.send({
+				errcode: 1,
+				errmsg: err.message
+			})
+		}else{
+			res.send({
+				errcode: 0,
+				errmsg: 'success to delete image: ' + str
+			})
+		}
+	})
+})
+
+module.exports = router;
 ```
 
 # 历史版本说明
@@ -143,3 +172,4 @@ router.post('/uploadWorkPicture', multipartyMiddleware, function(req, res){
 |v1.8|2019-05-20|增加上传到服务器key值参数：fileKeyName，用于在服务端通过自定义key值获取该文件数据，默认为'upload-images'.|
 |v1.9|2019-05-22|增加显示上传进度参数：showUploadProgress。以提示信息的方式来提示进度|
 |v1.10|2019-05-23|1.修改bug:支付宝小程序不能拖动。2.调整显示样式|
+|v1.11|2019-06-13|支持集成后台服务器的自定义删除图片接口，删除图片时，自动调用该接口完成后台图片文件的删除|
