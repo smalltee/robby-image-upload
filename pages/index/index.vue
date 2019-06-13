@@ -1,6 +1,6 @@
 <template>
 	<view class="">
-		<robby-image-upload v-model="imageData" :server-url="serverUrl" :showUploadProgress="show" :form-data="formData" @delete="deleteImage" @add="addImage"></robby-image-upload>
+		<robby-image-upload v-model="imageData" :server-url-delete-image="serverUrlDeleteImage" :server-url="serverUrl" :showUploadProgress="show" :form-data="formData" @delete="deleteImage" @add="addImage"></robby-image-upload>
 	</view>
 </template>
 
@@ -14,7 +14,8 @@
 				enableDrag : false,
 				show: true,
 				imageData : [],
-				serverUrl: 'http://localhost:3000/work/uploadWorkPicture',
+				serverUrl: 'http://localhost:2000/work/uploadWorkPicture',
+				serverUrlDeleteImage: 'http://localhost:2000/work/deleteWorkPicture',
 				formData: {
 					userId: 2
 				}

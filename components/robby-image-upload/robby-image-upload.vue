@@ -16,7 +16,7 @@
 	
 	export default {
 		name:'robby-image-upload',
-		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData','limit','fileKeyName','showUploadProgress'],
+		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData','limit','fileKeyName','showUploadProgress','serverUrlDeleteImage'],
 		data() {
 			return {
 				imageBasePos:{
@@ -165,6 +165,20 @@
 				var imageIndex = e.currentTarget.dataset.index
 				var deletedImagePath = this.value[imageIndex]
 				this.value.splice(imageIndex, 1) 
+				
+				//检查删除图片的服务器地址是否设置，如果设置则调用API，在服务器端删除该图片
+				if(this.serverUrlDeleteImage){
+					uni.request({
+						url: this.serverUrlDeleteImage,
+						method: 'GET',
+						data: {
+							imagePath: deletedImagePath
+						},
+						success: res => {
+							console.log(res.data)
+						}
+					});
+				}
 				
 				this.$emit('delete',{
 					currentImage: deletedImagePath,
