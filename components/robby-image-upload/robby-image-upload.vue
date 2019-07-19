@@ -1,8 +1,8 @@
 <template>
 	<view class="imageUploadContainer">
 		<view class="imageUploadList">
-			<view class="imageItem" v-bind:key="index" v-for="(path,index) in value">
-				<image :src="path" :class="{'dragging':isDragging(index)}" draggable="true" @tap="previewImage" :data-index="index" @touchstart="start" @touchmove="move" @touchend="stop"></image>
+			<view class="imageItem" v-bind:key="index" v-for="(path,index) in imageList">
+				<image :src="path" :class="{'dragging':isDragging(index)}" draggable="true" @tap="previewImage" :data-index="index" @touchstart="start" @touchmove.stop.prevent="move" @touchend="stop"></image>
 				<view v-if="isShowDel" class="imageDel" @tap="deleteImage" :data-index="index">x</view>
 			</view>
 			<view v-if="isShowAdd" class="imageUpload" @tap="selectImage">+</view>
@@ -32,8 +32,12 @@
 				deltaLeft: 0,
 				deltaTop: 0,
 				dragIndex: null,
-				targetImageIndex: null
+				targetImageIndex: null,
+				imageList: []
 			}
+		},
+		onLoad: function(){
+			this.imageList = this.value
 		},
 		computed:{
 			posMoveImageLeft: function(){ 
@@ -54,7 +58,7 @@
 					return false
 				}
 				
-				if(this.limit && this.value.length >= this.limit){
+				if(this.limit && this.imageList.length >= this.limit){
 					return false
 				}
 				
@@ -71,12 +75,12 @@
 		methods:{
 			selectImage: function(){
 				_self = this
-				if(!_self.value){
-					_self.value = []
+				if(!_self.imageList){
+					_self.imageList = []
 				} 
 				
 				uni.chooseImage({
-					count: _self.limit ? (_self.limit - _self.value.length) : 999,
+					count: _self.limit ? (_self.limit - _self.imageList.length) : 999,
 					success: function(e){
 						var imagePathArr = e.tempFilePaths
 						
@@ -84,7 +88,7 @@
 						//在非微信小程序里，虽然可以选多张，但选择的结果会被截掉
 						//在app里，会自动做选择数量的限制
 						if(_self.limit){
-							var availableImageNumber = _self.limit - _self.value.length
+							var availableImageNumber = _self.limit - _self.imageList.length
 							if(availableImageNumber < imagePathArr.length){
 								uni.showToast({
 									title: '图片总数限制为'+_self.limit+'张，当前还可以选'+availableImageNumber+'张',
@@ -97,13 +101,13 @@
 						}
 						
 						for(let i=0; i<imagePathArr.length;i++){
-							_self.value.push(imagePathArr[i])
+							_self.imageList.push(imagePathArr[i])
 						}
 						
 						//检查服务器地址是否设置，设置即表示图片要上传到服务器
 						if(_self.serverUrl){
 							
-							var remoteIndexStart = _self.value.length - imagePathArr.length
+							var remoteIndexStart = _self.imageList.length - imagePathArr.length
 							var promiseWorkList = []
 							var keyname = (_self.fileKeyName ? _self.fileKeyName : 'upload-images')
 							var completeImages = 0
@@ -119,7 +123,7 @@
 										name: keyname,
 										success: function(res){
 											if(res.statusCode === 200){
-												_self.value[remoteUrlIndex] = res.data 
+												_self.imageList[remoteUrlIndex] = res.data 
 												completeImages ++
 												
 												if(_self.showUploadProgress){
@@ -147,24 +151,24 @@
 							Promise.all(promiseWorkList).then((result)=>{
 								_self.$emit('add', {
 									currentImages: imagePathArr,
-									allImages: _self.value
+									allImages: _self.imageList
 								})
-								_self.$emit('input', _self.value)
+								_self.$emit('input', _self.imageList)
 							})
 						}else{
 							_self.$emit('add', {
 								currentImages: imagePathArr,
-								allImages: _self.value
+								allImages: _self.imageList
 							})
-							_self.$emit('input', _self.value)
+							_self.$emit('input', _self.imageList)
 						}
 					}
 				})
 			},
 			deleteImage: function(e){
 				var imageIndex = e.currentTarget.dataset.index
-				var deletedImagePath = this.value[imageIndex]
-				this.value.splice(imageIndex, 1) 
+				var deletedImagePath = this.imageList[imageIndex]
+				this.imageList.splice(imageIndex, 1) 
 				
 				//检查删除图片的服务器地址是否设置，如果设置则调用API，在服务器端删除该图片
 				if(this.serverUrlDeleteImage){
@@ -182,17 +186,17 @@
 				
 				this.$emit('delete',{
 					currentImage: deletedImagePath,
-					allImages: this.value
+					allImages: this.imageList
 				})
-				this.$emit('input', this.value)
+				this.$emit('input', this.imageList)
 			},
 			previewImage: function(e){
 				var imageIndex = e.currentTarget.dataset.index
 				uni.previewImage({
-					current: this.value[imageIndex],
+					current: this.imageList[imageIndex],
 					indicator: "number",
 					loop: "true",
-					urls:this.value
+					urls:this.imageList
 				})
 			},
 			initImageBasePos: function(){
@@ -221,11 +225,12 @@
 				return this.dragIndex === indx
 			},
 			start: function(e){
+				console.log(this.isDragable)
 				if(!this.isDragable){
 					return
 				}
 				this.dragIndex = e.currentTarget.dataset.index
-				this.moveImagePath = this.value[this.dragIndex]
+				this.moveImagePath = this.imageList[this.dragIndex]
 				this.showMoveImage = true
 				
 				//计算纵向图片基准位置
@@ -267,13 +272,13 @@
 						this.targetImageIndex = 0
 					}
 				
-					if(this.targetImageIndex>=this.value.length){
-						this.targetImageIndex = this.value.length-1
+					if(this.targetImageIndex>=this.imageList.length){
+						this.targetImageIndex = this.imageList.length-1
 					}
 					//交换图片
 					if(this.dragIndex !== this.targetImageIndex){
-						this.value[this.dragIndex] = this.value[this.targetImageIndex]
-						this.value[this.targetImageIndex] = this.moveImagePath
+						this.imageList[this.dragIndex] = this.imageList[this.targetImageIndex]
+						this.imageList[this.targetImageIndex] = this.moveImagePath
 					}
 				}
 				
@@ -283,7 +288,7 @@
 				this.deltaTop = 0
 				this.showMoveImage = false
 				
-				this.$emit('input', this.value)
+				this.$emit('input', this.imageList)
 			}
 		}
 	}

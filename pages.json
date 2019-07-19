@@ -3,9 +3,15 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "uni-app"
+				"navigationBarTitleText": "Index"
+			}
+		}, {
+			"path": "pages/index/second",
+			"style": {
+				"navigationBarTitleText": "Second"
 			}
 		}
+		
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
