@@ -1,7 +1,7 @@
 <template>
 	<view class="imageUploadContainer">
 		<view class="imageUploadList">
-			<view class="imageItem" v-bind:key="index" v-for="(path,index) in imageList">
+			<view class="imageItem" v-bind:key="index" v-for="(path,index) in imageListData">
 				<image :src="path" :class="{'dragging':isDragging(index)}" draggable="true" @tap="previewImage" :data-index="index" @touchstart="start" @touchmove.stop.prevent="move" @touchend="stop"></image>
 				<view v-if="isShowDel" class="imageDel" @tap="deleteImage" :data-index="index">x</view>
 			</view>
@@ -12,8 +12,6 @@
 </template>
 
 <script>
-	var _self;
-	
 	export default {
 		name:'robby-image-upload',
 		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData','limit','fileKeyName','showUploadProgress','serverUrlDeleteImage'],
@@ -33,13 +31,28 @@
 				deltaTop: 0,
 				dragIndex: null,
 				targetImageIndex: null,
-				imageList: []
+				imageList: [],
+				isDestroyed: false
+			}
+		}, 
+		mounted: function(){
+			this.imageList = this.value
+			
+			if(this.showUploadProgress === false){
+				this.showUploadProgress = false
+			}else{
+				this.showUploadProgress = true
 			}
 		},
-		onLoad: function(){
-			this.imageList = this.value
+		destroyed: function(){
+			this.isDestroyed = true
 		},
 		computed:{
+			imageListData: function(){
+				if(this.value){
+					return this.value
+				}
+			},
 			posMoveImageLeft: function(){ 
 				return this.moveLeft + 'px'
 			},
@@ -74,7 +87,7 @@
 		},
 		methods:{
 			selectImage: function(){
-				_self = this
+				var _self = this
 				if(!_self.imageList){
 					_self.imageList = []
 				} 
@@ -100,12 +113,13 @@
 							}
 						}
 						
-						for(let i=0; i<imagePathArr.length;i++){
-							_self.imageList.push(imagePathArr[i])
-						}
-						
 						//检查服务器地址是否设置，设置即表示图片要上传到服务器
 						if(_self.serverUrl){
+							uni.showToast({
+								title: '上传进度：0/' + imagePathArr.length,
+								icon: 'none',
+								mask: false
+							});
 							
 							var remoteIndexStart = _self.imageList.length - imagePathArr.length
 							var promiseWorkList = []
@@ -123,7 +137,10 @@
 										name: keyname,
 										success: function(res){
 											if(res.statusCode === 200){
-												_self.imageList[remoteUrlIndex] = res.data 
+												if(_self.isDestroyed){
+													return
+												}
+												
 												completeImages ++
 												
 												if(_self.showUploadProgress){
@@ -131,24 +148,32 @@
 														title: '上传进度：' + completeImages + '/' + imagePathArr.length,
 														icon: 'none',
 														mask: false,
-														duration: 1000
+														duration: 500
 													});
 												}
 												console.log('success to upload image: ' + res.data)
-												resolve('success to upload image:' + remoteUrlIndex)
+												resolve(res.data)
 											}else{
 												console.log('fail to upload image:'+res.data)
-												reject('failt to upload image:' + remoteUrlIndex)
+												reject('fail to upload image:' + remoteUrlIndex)
 											}
 										},
 										fail: function(res){
 											console.log('fail to upload image:'+res)
-											reject('failt to upload image:' + remoteUrlIndex)
+											reject('fail to upload image:' + remoteUrlIndex)
 										}
 									})
 								}))
 							}
 							Promise.all(promiseWorkList).then((result)=>{
+								if(_self.isDestroyed){
+									return
+								}
+								
+								for(let i=0; i<result.length;i++){
+									_self.imageList.push(result[i])
+								}
+								
 								_self.$emit('add', {
 									currentImages: imagePathArr,
 									allImages: _self.imageList
@@ -156,6 +181,10 @@
 								_self.$emit('input', _self.imageList)
 							})
 						}else{
+							for(let i=0; i<imagePathArr.length;i++){
+								_self.imageList.push(imagePathArr[i])
+							}
+							
 							_self.$emit('add', {
 								currentImages: imagePathArr,
 								allImages: _self.imageList
@@ -201,7 +230,7 @@
 			},
 			initImageBasePos: function(){
 				let paddingRate = 0.024
-				_self = this
+				var _self = this
 				//计算图片基准位置
 				uni.getSystemInfo({
 					success: function(obj) {
