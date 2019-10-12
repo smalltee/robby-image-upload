@@ -34,7 +34,7 @@ export default {
 <robby-image-upload v-model="imageData" @delete="deleteImage" @add="addImage" :enable-drag="enableDrag" :enable-del="enableDel" :enable-add="enableAdd" :limit="limitNumber"></robby-image-upload>
 
 支持图片上传服务器：选择图片后，组件会自动上传到指定地址，并更新组件中保存的图片地址为服务器地址
-<robby-image-upload :server-url="serverUrl" :form-data="formData"></robby-image-upload>
+<robby-image-upload :server-url="serverUrl" :form-data="formData" :header="header"></robby-image-upload>
 ```
 
 # 双向绑定说明
@@ -50,6 +50,7 @@ value|Array&lt;String&gt;|[]|初始化的图片数据，可用于单向数据初
 server-url|String|null|图片上传的服务器地址，为空或不填写表示不上传图片。填写后本组件在选择图片后会自动上传服务器，add/delete事件中的allImages参数会更新为由服务器端传回的图片地址。
 server-url-delete-image|String|null|删除图片的服务器地址，为空或不填写表示不需要调用后台完成删除操作。填写后本组件在点击删除按钮后会调用该接口，具体的删除操作需要自行实现。下方有一个Node作为后台删除图片的例子
 form-data|Object|null|上传图片到服务器时，如果需要自定义数据，可以通过此属性进行传递。
+header|Object|null|上传图片到服务器时，HTTP 请求 Header, header 中不能设置 Referer。
 limit|Number|无|限制总共可上传的图片数量，默认无限制
 fileKeyName|String|'upload-images'|用于在服务端通过自定义key值获取该文件数据
 showUploadProgress|Boolean|true|是否显示选择图片的上传进度（以提示信息的方式）
@@ -175,3 +176,4 @@ module.exports = router;
 |v1.11|2019-06-13|支持集成后台服务器的自定义删除图片接口，删除图片时，自动调用该接口完成后台图片文件的删除|
 |v1.12|2019-07-18|修改bug:1.后退后再进入之前的图片还存在的问题，感谢602044025@qq.com提的意见。 2.单页出现滚动条时，在拖动图片时会导致页面一起拖动|
 |v1.13|2019-09-25|修改bug:1.使用v-model初始化时图片不显示。 2.修改上传进度提示默认为true，避免未上传完毕就点击了提交。 3._self的全局定义移到方法内部的局部定义，修改单页面无法使用多次的问题。|
+|v1.14|2019-10-12|增加header属性，支持设置请求头|

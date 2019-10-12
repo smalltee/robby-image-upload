@@ -14,7 +14,7 @@
 <script>
 	export default {
 		name:'robby-image-upload',
-		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData','limit','fileKeyName','showUploadProgress','serverUrlDeleteImage'],
+		props: ['value','enableDel','enableAdd','enableDrag','serverUrl','formData','header', 'limit','fileKeyName','showUploadProgress','serverUrlDeleteImage'],
 		data() {
 			return {
 				imageBasePos:{
@@ -132,6 +132,7 @@
 									uni.uploadFile({
 										url:_self.serverUrl,
 										fileType: 'image',
+										header: _self.header,
 										formData:_self.formData,
 										filePath: imagePathArr[i], 
 										name: keyname,
