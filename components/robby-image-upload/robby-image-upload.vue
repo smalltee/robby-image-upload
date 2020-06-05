@@ -3,7 +3,7 @@
 		<view class="imageUploadList">
 			<view class="imageItem" v-bind:key="index" v-for="(path,index) in imageListData">
 				<image :src="path" :class="{'dragging':isDragging(index)}" draggable="true" @tap="previewImage" :data-index="index" @touchstart="start" @touchmove.stop.prevent="move" @touchend="stop"></image>
-				<view v-if="isShowDel" class="imageDel" @tap="deleteImage" :data-index="index">x</view>
+				<view v-if="isShowDel" class="imageDel" @tap="deleteImage" :data-index="index"> </view>
 			</view>
 			<view v-if="isShowAdd" class="imageUpload" @tap="selectImage">+</view>
 		</view>
@@ -344,19 +344,22 @@
 		height: 160upx;
 		margin: 10upx;
 	}
+
+	.imageItem{
+		position: relative;
+	}
 	
 	.imageDel{
-		position: relative;
-		left: 120upx;
-		bottom: 165upx;
-		background-color: rgba(0,0,0,0.5);
-		width: 36upx;
-		text-align: center;
-		line-height: 35upx;
-		border-radius: 17upx;
-		color: white;
-		font-size: 30upx;
-		padding-bottom: 2upx;
+		position: absolute;
+		top: -5px;
+		right: -5px;
+		width: 20px;
+		height: 20px;
+		border-radius: 30px;
+		box-shadow: 0 0 5px #999;
+		background: url("data:image/png;base64,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")
+					center no-repeat ;
+		background-size: cover;
 	}
 	
 	.imageItem image, .moveImage{
